@@ -11,13 +11,13 @@ def main():
         #stdscr.keypad(True)
         blocks = Blocks(stdscr)
         blocks.add_stdout('Stdout/Stderr', 8)
-        blocks.add_text('Title')
-        blocks.add_terminal('vim', ['/usr/bin/env', 'vim', '-i', 'NONE', '-u', 'NONE'])
+        blocks.add_text('Scratch')
+        blocks.add_terminal('Editor', ['/usr/bin/env', 'vim', '-i', 'NONE', '-u', 'NONE'])
+        blocks.add_terminal('Python console', ['/usr/bin/env', 'python3'])
         blocks.add_terminal('Bash', ['/usr/bin/env', 'bash'])
-        #blocks.add_terminal('Python', ['/usr/bin/env', 'python3'])
+        blocks.add_text('Scratch')
+        blocks.add_text('Scratch')
         stdscr.clear()
-        for i in range(20):
-            print(i, blocks.blocks[0].scroll)
         while True:
             try:
                 blocks.render()

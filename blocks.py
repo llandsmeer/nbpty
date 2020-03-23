@@ -46,10 +46,32 @@ class Blocks:
         block = BlockStdout(header, nlines)
         self.blocks.append(block)
 
-    def render(self):
-        top = 0
-        focus_top = 0
+    def scroll(self):
+        hs = []
+        nskip = 0
         for i, block in enumerate(self.blocks):
+            h = block.height()
+            if i == self.focus_idx:
+                top = sum(hs)
+                bot = top + h
+                while bot > curses.LINES:
+                    bot = top + h
+                    nskip += 1
+                    print('POP')
+                    hs.pop(0)
+                    top = sum(hs)
+            hs.append(h)
+        return nskip
+
+    def render(self):
+        focus_top = 0
+        top = 0
+        nskip = self.scroll()
+        self.stdscr.clear()
+        self.stdscr.refresh()
+        for i, block in enumerate(self.blocks):
+            if i < nskip:
+                continue
             block.focus = i == self.focus_idx
             if block.focus:
                 focus_top = top
@@ -68,13 +90,12 @@ class Blocks:
                 break
         if self.blocks:
             block = self.blocks[self.focus_idx]
-            if True or block.cursor is not None:
-                #curses.curs_set(2)
+            if block.cursor is not None and 0 <= focus_top + block.cursor[1] < curses.LINES:
+                curses.curs_set(2)
                 self.stdscr.move(focus_top + block.cursor[1], block.cursor[0])
                 self.stdscr.refresh()
             else:
-                #curses.curs_set(0)
-                pass
+                curses.curs_set(0)
 
 
     def wait(self):

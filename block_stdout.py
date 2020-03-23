@@ -48,11 +48,10 @@ class BlockStdout:
         lines = lines[self.scroll:self.scroll+self.nlines]
         for i, line in enumerate(lines, 2):
             self.scr.addstr(i, 1, line)
-        if self.focus:
-            curses.textpad.rectangle(self.scr,
-                    1, 0,
-                    self.nlines+2,
-                    min(curses.COLS-1, self.width()-1))
+        curses.textpad.rectangle(self.scr,
+                1, 0,
+                self.nlines+2,
+                min(curses.COLS-1, self.width()-1))
 
     def width(self):
         return curses.COLS

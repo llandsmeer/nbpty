@@ -22,11 +22,10 @@ class BlockTerminal:
             for x in range(self.terminal.screen.width):
                 c = self.terminal.screen.chars[y][x]
                 self.scr.addch(y+2, x+1, c)
-        if self.focus:
-            curses.textpad.rectangle(self.scr,
-                    1, 0,
-                    self.height() - 1,
-                    min(curses.COLS-1, self.width()-1))
+        curses.textpad.rectangle(self.scr,
+                1, 0,
+                self.height() - 1,
+                min(curses.COLS-1, self.width()-1))
         x, y = self.terminal.screen.cursor
         self.cursor = x + 1, y + 2
 

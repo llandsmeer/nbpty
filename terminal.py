@@ -26,7 +26,7 @@ class Terminal:
         self.height = rows
 
     def handle_input(self):
-        buf = os.read(self.master, 512)
+        buf = os.read(self.master, 1024)
         self.screen.send(buf)
 
     def send(self, buf):

@@ -58,7 +58,7 @@ class VTermScreen:
         return cb
 
     def vterm_damage(self, rect, _user):
-        #print('damage', rect)
+        # print('damage', rect)
         for row in range(rect.start_row, rect.end_row):
             for col in range(rect.start_col, rect.end_col):
                 cell_rect = VTermRect(row, row+1, col, col+1)
@@ -73,15 +73,15 @@ class VTermScreen:
 
     def vterm_movecursor(self, dst, src, _user):
         self.cursor = dst.col, dst.row
-        return 0
+        return 1
 
     def vterm_settermprop(self, prop, attr, _user):
         # print('settermprop', prop, attr)
-        return 0
+        return 1
 
     def vterm_bell(self, *a):
-        print(a)
-        return 0
+        print('bell')
+        return 1
 
     def send(self, buf):
         buf = bytearray(buf)
