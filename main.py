@@ -16,6 +16,8 @@ def main():
         blocks.add_terminal('Bash', ['/usr/bin/env', 'bash'])
         #blocks.add_terminal('Python', ['/usr/bin/env', 'python3'])
         stdscr.clear()
+        for i in range(20):
+            print(i, blocks.blocks[0].scroll)
         while True:
             try:
                 blocks.render()

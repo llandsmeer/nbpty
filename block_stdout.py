@@ -8,7 +8,7 @@ class BlockStdout:
         self.nlines = nlines
         self.scr = curses.newpad(self.height()+1, self.width())
         self.focus = False
-        self.cursor = 0, 2
+        self.cursor = 1, 2
         self.orig = sys.stderr
         sys.stdout = self
         sys.stderr = self
@@ -20,12 +20,12 @@ class BlockStdout:
         if key == 'j':
             self.scroll += 1
         if key == 'k':
-            self.scroll -= 0
+            self.scroll -= 1
         if self.scroll < 0:
             self.scroll = 0
         n = self.output.count('\n') + 1
-        if self.scroll > n - self.nlines:
-            self.scroll = n - self.nlines
+        if self.scroll > n - 2:
+            self.scroll = n - 2
 
     def write(self, s):
         #self.orig.write(s)
