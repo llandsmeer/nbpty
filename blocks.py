@@ -1,3 +1,5 @@
+import sys
+
 import curses
 import curses.textpad
 import select
@@ -17,7 +19,7 @@ class Blocks:
 
     def handle_input(self):
         try:
-            key = self.stdscr.getkey()
+            key = sys.stdin.read(1)
         except curses.error as e:
             if str(e) == 'no input':
                 return
