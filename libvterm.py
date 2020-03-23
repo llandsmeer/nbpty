@@ -3,7 +3,6 @@ import faulthandler
 faulthandler.enable()
 
 libvterm = ctypes.CDLL('libvterm.so')
-f = open('log', 'w')
 
 def _struct_repr(self):
     fields = ', '.join(f'{key}={getattr(self, key)}' for key, _t in self._fields_)
@@ -59,7 +58,7 @@ class VTermScreen:
         return cb
 
     def vterm_damage(self, rect, _user):
-        print('damage', rect, file=f)
+        #print('damage', rect)
         for row in range(rect.start_row, rect.end_row):
             for col in range(rect.start_col, rect.end_col):
                 cell_rect = VTermRect(row, row+1, col, col+1)
@@ -77,11 +76,11 @@ class VTermScreen:
         return 0
 
     def vterm_settermprop(self, prop, attr, _user):
-        print('settermprop', prop, attr, file=f)
+        # print('settermprop', prop, attr)
         return 0
 
     def vterm_bell(self, *a):
-        print(a, file=f)
+        print(a)
         return 0
 
     def send(self, buf):

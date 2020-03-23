@@ -4,6 +4,7 @@ import curses.textpad
 from inputs import Inputs
 from block_text import BlockText
 from block_terminal import BlockTerminal
+from block_stdout import BlockStdout
 
 class Blocks:
     def __init__(self, stdscr):
@@ -20,8 +21,6 @@ class Blocks:
             if str(e) == 'no input':
                 return
             raise
-        with open('log2', 'a') as f:
-            print(repr(key), file=f)
         if key == 'J':
             if self.focus_idx < len(self.blocks) - 1:
                 self.focus_idx += 1
@@ -43,8 +42,13 @@ class Blocks:
         self.inputs.add(block.terminal.master, block.terminal.handle_input)
         self.blocks.append(block)
 
+    def add_stdout(self, header, nlines):
+        block = BlockStdout(header, nlines)
+        self.blocks.append(block)
+
     def render(self):
         top = 0
+        cursor = None
         for i, block in enumerate(self.blocks):
             block.focus = i == self.focus_idx
             block.render()
@@ -54,16 +58,19 @@ class Blocks:
             if bot >= curses.LINES:
                 bot = curses.LINES - 1
                 end = True
-            if block.focus and block.cursor is not None:
-                curses.curs_set(1)
-                curses.setsyx(block.cursor[1], block.cursor[0])
-            else:
-                pass
-                curses.curs_set(0)
             block.scr.refresh(0, 0, top, 0, bot, curses.COLS)
             if end:
                 break
             top += h
+            if bot >= curses.LINES:
+                break
+        if self.blocks:
+            block = self.blocks[self.focus_idx]
+            if True or block.cursor is not None:
+                curses.curs_set(1)
+                self.stdscr.move(block.cursor[1], block.cursor[0])
+            else:
+                curses.curs_set(0)
 
 
     def wait(self):
