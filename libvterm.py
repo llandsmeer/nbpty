@@ -39,7 +39,7 @@ libvterm.vterm_new.restype = ctypes.c_void_p
 class VTermScreen:
     def __init__(self, width, height):
         self.damage_buf = ctypes.create_string_buffer(8)
-        self.chars = [list(' '*(width+1)) for _ in range(height+1)]
+        self.chars = [list(' '*width) for _ in range(height)]
         self.term = libvterm.vterm_new(height, width)
         self.callbacks = self.create_callbacks()
         libvterm.vterm_set_utf8(self.term, 1)
@@ -49,48 +49,40 @@ class VTermScreen:
         libvterm.vterm_screen_reset(self.screen, 1)
         self.width = width
         self.height = height
+        self.cursor = None
 
     def create_callbacks(self):
         cb = VTermScreenCallbacks()
         for name, type_ in cb._fields_:
-            function = getattr(self, 'vterm_' + name)
+            function = getattr(self, 'vterm_' + name, 0)
             setattr(cb, name, type_(function))
         return cb
 
     def vterm_damage(self, rect, _user):
+        print('damage', rect, file=f)
         for row in range(rect.start_row, rect.end_row):
             for col in range(rect.start_col, rect.end_col):
                 cell_rect = VTermRect(row, row+1, col, col+1)
                 buf = self.damage_buf
-                rectt = (ctypes.c_int * 4)(row, col, row+1, col+1)
                 n = libvterm.vterm_screen_get_text(self.screen, buf, len(buf), cell_rect)
-                self.chars[row][col] = buf.value[:n].decode('latin1')
+                self.chars[row][col] = buf.value[:n].decode('utf8') or ' '
         return 1
 
-    def vterm_moverect(self, *a):
-        print(a, file=f)
+    def vterm_moverect(self, dst, src, _user):
+        self.vterm_damage(dst, _user)
         return 1
 
-    def vterm_movecursor(self, *a):
-        print(a, file=f)
-        return 1
+    def vterm_movecursor(self, dst, src, _user):
+        self.cursor = dst.col, dst.row
+        return 0
 
-    def vterm_settermprop(self, *a):
-        print(a, file=f)
+    def vterm_settermprop(self, prop, attr, _user):
+        print('settermprop', prop, attr, file=f)
         return 0
 
     def vterm_bell(self, *a):
         print(a, file=f)
         return 0
-
-    def vterm_resize(self, *a):
-        print(a, file=f)
-
-    def vterm_sb_pushline(self, *a):
-        print(a, file=f)
-
-    def vterm_sb_popline(self, *a):
-        print(a, file=f)
 
     def send(self, buf):
         buf = bytearray(buf)

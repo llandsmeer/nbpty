@@ -20,10 +20,12 @@ class Blocks:
             if str(e) == 'no input':
                 return
             raise
-        if key == 'j':
+        with open('log2', 'a') as f:
+            print(repr(key), file=f)
+        if key == 'J':
             if self.focus_idx < len(self.blocks) - 1:
                 self.focus_idx += 1
-        elif key == 'k':
+        elif key == 'K':
             if self.focus_idx > 0:
                 self.focus_idx -= 1
         elif self.blocks:
@@ -35,8 +37,8 @@ class Blocks:
         self.blocks.append(block)
 
     def add_terminal(self, header, argv):
-        width = 60
-        height = 10
+        width = curses.COLS - 2
+        height = 15
         block = BlockTerminal(header, argv, width, height)
         self.inputs.add(block.terminal.master, block.terminal.handle_input)
         self.blocks.append(block)
@@ -52,10 +54,17 @@ class Blocks:
             if bot >= curses.LINES:
                 bot = curses.LINES - 1
                 end = True
+            if block.focus and block.cursor is not None:
+                curses.curs_set(1)
+                curses.setsyx(block.cursor[1], block.cursor[0])
+            else:
+                pass
+                curses.curs_set(0)
             block.scr.refresh(0, 0, top, 0, bot, curses.COLS)
             if end:
                 break
             top += h
+
 
     def wait(self):
         self.inputs.wait()

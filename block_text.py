@@ -7,9 +7,11 @@ class BlockText:
         self.lines = list(lines)
         self.scr = curses.newpad(self.height()+1, self.width())
         self.focus = False
+        self.cursor = 0, 2
 
     def handle_input(self, key):
         self.lines[2] += key
+        self.cursor = 0, len(self.lines[2])
 
     def render(self):
         self.scr.clear()
