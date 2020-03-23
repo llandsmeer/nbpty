@@ -11,7 +11,7 @@ class BlockTerminal:
         self.terminal = Terminal(width, height, argv)
         self.focus = False
         self.scr = curses.newpad(1, self.width())
-        self.cursor = 0, 0
+        self.cursor = None
 
     def render(self):
         if self.height() > self.scr.getmaxyx()[0] - 1:
@@ -27,6 +27,8 @@ class BlockTerminal:
                     1, 0,
                     self.height() - 1,
                     min(curses.COLS-1, self.width()-1))
+        x, y = self.terminal.screen.cursor
+        self.cursor = x + 1, y + 2
 
     def handle_input(self, key):
         self.terminal.send(key)

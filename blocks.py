@@ -30,7 +30,7 @@ class Blocks:
         elif self.blocks:
             self.blocks[self.focus_idx].handle_input(key)
 
-    def add_text(self, header, text):
+    def add_text(self, header, text=''):
         lines = text.split('\n')
         block = BlockText(header, lines)
         self.blocks.append(block)
@@ -48,9 +48,11 @@ class Blocks:
 
     def render(self):
         top = 0
-        cursor = None
+        focus_top = 0
         for i, block in enumerate(self.blocks):
             block.focus = i == self.focus_idx
+            if block.focus:
+                focus_top = top
             block.render()
             h = block.height()
             bot = top+h-1
@@ -67,10 +69,12 @@ class Blocks:
         if self.blocks:
             block = self.blocks[self.focus_idx]
             if True or block.cursor is not None:
-                curses.curs_set(1)
-                self.stdscr.move(block.cursor[1], block.cursor[0])
+                #curses.curs_set(2)
+                self.stdscr.move(focus_top + block.cursor[1], block.cursor[0])
+                self.stdscr.refresh()
             else:
-                curses.curs_set(0)
+                #curses.curs_set(0)
+                pass
 
 
     def wait(self):

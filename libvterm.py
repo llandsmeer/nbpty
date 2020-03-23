@@ -48,7 +48,7 @@ class VTermScreen:
         libvterm.vterm_screen_reset(self.screen, 1)
         self.width = width
         self.height = height
-        self.cursor = None
+        self.cursor = 0, 0
 
     def create_callbacks(self):
         cb = VTermScreenCallbacks()

@@ -2,16 +2,24 @@ import curses
 import curses.textpad
 
 class BlockText:
-    def __init__(self, header, lines):
+    def __init__(self, header, lines=()):
         self.header = header
         self.lines = list(lines)
+        if not lines: lines.append('')
         self.scr = curses.newpad(self.height()+1, self.width())
         self.focus = False
-        self.cursor = 0, 2
+        self.cursor = 1 + len(self.lines[-1]), self.height() - 2
 
     def handle_input(self, key):
-        self.lines[2] += key
-        self.cursor = 0, len(self.lines[2])
+        if key == '\n':
+            self.lines.append('')
+            self.scr = curses.newpad(self.height()+1, self.width())
+        elif key == '\x7f':
+            if self.lines[-1]:
+                self.lines[-1] = self.lines[-1][:-1]
+        else:
+            self.lines[-1] += key
+        self.cursor = 1 + len(self.lines[-1]), self.height() - 2
 
     def render(self):
         self.scr.clear()

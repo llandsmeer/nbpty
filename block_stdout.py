@@ -14,6 +14,7 @@ class BlockStdout:
         sys.stderr = self
         self.output = ''
         self.scroll = 0
+        self.f = open('log', 'w')
 
     def handle_input(self, key):
         if key == 'j':
@@ -28,6 +29,8 @@ class BlockStdout:
 
     def write(self, s):
         #self.orig.write(s)
+        self.f.write(s)
+        self.f.flush()
         self.output = self.output + str(s)
         n = self.output.count('\n') + 1
         if n > self.nlines:
