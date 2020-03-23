@@ -61,14 +61,16 @@ class VTermScreen:
         # print('damage', rect)
         for row in range(rect.start_row, rect.end_row):
             for col in range(rect.start_col, rect.end_col):
-                cell_rect = VTermRect(row, row+1, col, col+1)
-                buf = self.damage_buf
-                n = libvterm.vterm_screen_get_text(self.screen, buf, len(buf), cell_rect)
-                self.chars[row][col] = buf.value[:n].decode('utf8') or ' '
+                try:
+                    cell_rect = VTermRect(row, row+1, col, col+1)
+                    buf = self.damage_buf
+                    n = libvterm.vterm_screen_get_text(self.screen, buf, len(buf), cell_rect)
+                    self.chars[row][col] = buf.value[:n].decode('utf8') or ' '
+                except:
+                    self.chars[row][col] = '?'
         return 1
 
     def vterm_moverect(self, dst, src, _user):
-        self.vterm_damage(dst, _user)
         return 1
 
     def vterm_movecursor(self, dst, src, _user):

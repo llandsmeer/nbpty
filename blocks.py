@@ -19,6 +19,8 @@ class Blocks:
 
     def handle_input(self):
         key = sys.stdin.read(1)
+        if not key.isalnum():
+            print(repr(key))
         if key == '\n': # C-J
             if self.focus_idx < len(self.blocks) - 1:
                 self.focus_idx += 1

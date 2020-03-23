@@ -3,6 +3,7 @@ import curses.textpad
 
 from block_base import BlockBase
 from terminal import Terminal
+import libvterm
 
 class BlockTerminal(BlockBase):
     def __init__(self, header, argv, width, height):
