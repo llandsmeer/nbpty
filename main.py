@@ -18,6 +18,8 @@ def main():
         blocks.add_text('Scratch')
         blocks.add_text('Scratch')
         stdscr.clear()
+        print('Ctrl-J: Move block down')
+        print('Ctrl-K: Move block up')
         while True:
             try:
                 blocks.render()

@@ -18,16 +18,11 @@ class Blocks:
         self.inputs.add(0, self.handle_input)
 
     def handle_input(self):
-        try:
-            key = sys.stdin.read(1)
-        except curses.error as e:
-            if str(e) == 'no input':
-                return
-            raise
-        if key == 'J':
+        key = sys.stdin.read(1)
+        if key == '\n': # C-J
             if self.focus_idx < len(self.blocks) - 1:
                 self.focus_idx += 1
-        elif key == 'K':
+        elif key == '\x0b': # C-K
             if self.focus_idx > 0:
                 self.focus_idx -= 1
         elif self.blocks:
@@ -93,7 +88,7 @@ class Blocks:
             if end:
                 break
             top += h
-            if bot >= curses.LINES:
+            if top >= curses.LINES:
                 break
         if self.blocks:
             block = self.blocks[self.focus_idx]

@@ -13,7 +13,7 @@ class BlockText(BlockBase):
         self.cursor = 1 + len(self.lines[-1]), self.height() - 2
 
     def handle_input(self, key):
-        if key == '\n':
+        if key == '\n' or key == '\r':
             self.lines.append('')
             self.scr = curses.newpad(self.height()+1, self.width())
         elif key == '\x7f':
