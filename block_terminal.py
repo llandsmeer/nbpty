@@ -4,19 +4,26 @@ import curses.textpad
 from terminal import Terminal
 
 class BlockTerminal:
-    def __init__(self, header, argv):
+    def __init__(self, header, argv, width, height):
         self.header = header
-        self.terminal = Terminal(argv)
+        self.terminal = Terminal(width, height, argv)
         self.focus = False
         self.scr = curses.newpad(1, self.width())
+        self._width = width
+        self._height = height
 
     def render(self):
         if self.height() > self.scr.getmaxyx()[0] - 1:
             self.scr = curses.newpad(self.height()+1, self.width())
         self.scr.clear()
         self.scr.addstr(0, 1, f'{self.header}', curses.A_BOLD)
-        for i, line in enumerate(self.terminal.output.split('\n'), 2):
-            self.scr.addstr(i, 1, line)
+        for y in range(self.terminal.screen.height):
+            for x in range(self.terminal.screen.width):
+                c = self.terminal.screen.chars[y][x]
+                try:
+                    self.scr.addstr(y+2, x+1, c)
+                except:
+                    pass
         if self.focus:
             curses.textpad.rectangle(self.scr,
                     1, 0,
@@ -30,4 +37,4 @@ class BlockTerminal:
         return curses.COLS
 
     def height(self):
-        return len(self.terminal.output.split('\n')) + 1 + 2
+        return self._height + 3

@@ -35,7 +35,9 @@ class Blocks:
         self.blocks.append(block)
 
     def add_terminal(self, header, argv):
-        block = BlockTerminal(header, argv)
+        width = 60
+        height = 10
+        block = BlockTerminal(header, argv, width, height)
         self.inputs.add(block.terminal.master, block.terminal.handle_input)
         self.blocks.append(block)
 

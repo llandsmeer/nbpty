@@ -16,8 +16,11 @@ def main():
         #blocks.add_terminal('vim', ['/usr/bin/env', 'vim', '-i', 'NONE', '-u', 'NONE'])
         stdscr.clear()
         while True:
-            blocks.render()
-            blocks.wait()
+            try:
+                blocks.render()
+                blocks.wait()
+            except KeyboardInterrupt:
+                break
     finally:
         curses.nocbreak()
         stdscr.keypad(False)
