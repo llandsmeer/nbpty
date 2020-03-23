@@ -2,7 +2,9 @@ import sys
 import curses
 import curses.textpad
 
-class BlockStdout:
+from block_base import BlockBase
+
+class BlockStdout(BlockBase):
     def __init__(self, header, nlines):
         self.header = header
         self.nlines = nlines
@@ -42,19 +44,11 @@ class BlockStdout:
         pass
 
     def render(self):
-        self.scr.clear()
-        self.scr.addstr(0, 1, f'{self.header}', curses.A_BOLD)
+        super().render()
         lines = self.output.split('\n')
         lines = lines[self.scroll:self.scroll+self.nlines]
         for i, line in enumerate(lines, 2):
             self.scr.addstr(i, 1, line)
-        curses.textpad.rectangle(self.scr,
-                1, 0,
-                self.nlines+2,
-                min(curses.COLS-1, self.width()-1))
-
-    def width(self):
-        return curses.COLS
 
     def height(self):
         return self.nlines + 3

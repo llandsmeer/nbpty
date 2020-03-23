@@ -2,12 +2,14 @@ import os
 import ctypes
 import struct
 import fcntl
+import select
 import termios
 
 from libvterm import VTermScreen
 
 class Terminal:
     def __init__(self, width, height, argv=('/bin/sh',)):
+        self.is_alive = True
         self.screen = VTermScreen(width, height)
         self.pid, self.master = os.forkpty()
         if self.pid == 0:
@@ -25,9 +27,12 @@ class Terminal:
         self.width = cols
         self.height = rows
 
-    def handle_input(self):
-        buf = os.read(self.master, 1024)
-        self.screen.send(buf)
+    def handle_input(self, event):
+        if event == select.POLLIN and self.is_alive:
+            buf = os.read(self.master, 1024)
+            self.screen.send(buf)
+        else:
+            self.is_alive = False
 
     def send(self, buf):
         os.write(self.master, buf.encode('latin1'))

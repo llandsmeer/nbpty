@@ -1,5 +1,6 @@
 import curses
 import curses.textpad
+import select
 
 from inputs import Inputs
 from block_text import BlockText
@@ -39,7 +40,7 @@ class Blocks:
         width = curses.COLS - 2
         height = 15
         block = BlockTerminal(header, argv, width, height)
-        self.inputs.add(block.terminal.master, block.terminal.handle_input)
+        self.inputs.add(block.terminal.master, block.terminal.handle_input, select.POLLIN | select.POLLHUP)
         self.blocks.append(block)
 
     def add_stdout(self, header, nlines):
@@ -57,13 +58,17 @@ class Blocks:
                 while bot > curses.LINES:
                     bot = top + h
                     nskip += 1
-                    print('POP')
                     hs.pop(0)
                     top = sum(hs)
             hs.append(h)
         return nskip
 
     def render(self):
+        for i, block in reversed(list(enumerate(self.blocks))):
+            if not block.is_alive():
+                self.blocks.pop(i)
+        if self.focus_idx >= len(self.blocks):
+            self.focus_idx = len(self.blocks) - 1
         focus_top = 0
         top = 0
         nskip = self.scroll()
@@ -96,7 +101,6 @@ class Blocks:
                 self.stdscr.refresh()
             else:
                 curses.curs_set(0)
-
 
     def wait(self):
         self.inputs.wait()
