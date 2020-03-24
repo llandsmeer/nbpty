@@ -17,17 +17,49 @@ class Blocks:
         self.focus_idx = 0
         self.inputs = Inputs()
         self.inputs.add(0, self.handle_input)
+        self.escape_pressed = False
+        self.keybinds = {
+            'n': self.action_block_up,
+            'p': self.action_block_down,
+            'O': self.action_block_create_above,
+            'o': self.action_block_create_below
+        }
+
+    def handle_block_create_request(self, idx):
+        block = BlockText('Created', ['Hi!'])
+        self.blocks.insert(self.focus_idx, block)
+        self.focus_idx = idx
+
+    def action_block_up(self):
+        if self.focus_idx > 0:
+            self.focus_idx -= 1
+
+    def action_block_down(self):
+        if self.focus_idx < len(self.blocks) - 1:
+            self.focus_idx += 1
+
+    def action_block_create_above(self):
+        self.handle_block_create_request(self.focus_idx)
+
+    def action_block_create_below(self):
+        self.handle_block_create_request(self.focus_idx+1)
 
     def handle_input(self):
         key = sys.stdin.read(1)
         if not key.isprintable() and not key in '\n\t\x0b\x7f\x0c':
             print(repr(key))
-        if key == '\n': # C-J
-            if self.focus_idx < len(self.blocks) - 1:
-                self.focus_idx += 1
+        if self.escape_pressed:
+            if key in self.keybinds:
+                self.keybinds[key]()
+            else:
+                print('unknown keybind ^p', repr(key))
+            self.escape_pressed = False
+        elif key == '\x10': # C-P
+            self.escape_pressed = True
+        elif key == '\n': # C-J
+            self.action_block_down()
         elif key == '\x0b': # C-K
-            if self.focus_idx > 0:
-                self.focus_idx -= 1
+            self.action_block_up()
         elif self.blocks:
             self.blocks[self.focus_idx].handle_input(key)
 

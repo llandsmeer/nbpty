@@ -25,6 +25,7 @@ def main():
         stdscr.clear()
         print('Ctrl-J: Move block down')
         print('Ctrl-K: Move block up')
+        print('Ctrl-P o/O: Create new cell with last hist entry')
         while True:
             try:
                 blocks.render()

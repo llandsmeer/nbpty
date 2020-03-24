@@ -28,6 +28,8 @@ class BlockEval(BlockBase):
             self.lines = ['']
         elif key == '\t':
             self.eval()
+        elif key == 'O':
+            self.manager.history(print)
         else:
             self.lines[-1] += key
         self.cursor = 1 + len(self.lines[-1]), len(self.lines) + 1

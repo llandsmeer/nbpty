@@ -3,6 +3,7 @@ import json
 import queue
 
 import jupyter_client
+from block_eval import BlockEval
 
 class JupyterManager:
     def __init__(self, blocks):
@@ -10,6 +11,7 @@ class JupyterManager:
         self.connection_file = os.path.abspath('_jupyter.json')
         self.client = jupyter_client.BlockingKernelClient()
         self.execute_requests = {}
+        self.history_requests = {}
 
     def launch(self):
         self.blocks.add_terminal('Jupyter Kernel', [
@@ -22,6 +24,16 @@ class JupyterManager:
 
         self.blocks.inputs.add(self.client.iopub_channel.socket.FD, self.edge_event)
         self.blocks.inputs.add(self.client.shell_channel.socket.FD, self.edge_event)
+
+        def handle_block_create_request(idx):
+            def cb(hist):
+                block = BlockEval('Python Code Block', self, hist[-1].split('\n') if hist else [''])
+                self.blocks.blocks.insert(idx, block)
+                self.blocks.focus_idx = idx
+            self.history(cb)
+
+        self.blocks.handle_block_create_request = handle_block_create_request
+
 
     def edge_event(self):
         self.clear_buffers()
@@ -55,6 +67,13 @@ class JupyterManager:
             else:
                 content_dump = json.dumps(msg['content'], default=str, indent=1)
                 f('# execution ok')
+        elif pid in self.history_requests:
+            hist_res = msg['content']['history']
+            hist = []
+            for _a, _b, c in hist_res:
+                if c[0]:
+                    hist.append(c[0])
+            self.history_requests[pid](hist)
         else:
             print('discarding', msg['msg_type'], msg['msg_id'])
             dump = json.dumps(msg, default=str, indent=1)
@@ -75,7 +94,8 @@ class JupyterManager:
                     dump = json.dumps(msg['content'], default=str, indent=1)
                     print(dump)
             else:
-                print(msg['content']['text'])
+                print('discarding iopub', msg['msg_type'], msg['msg_id'], ' - Jupyter Kernel?')
+                #print(msg['content']['text'])
         elif msg['msg_type'] == 'execute_input':
             pass
         else:
@@ -88,7 +108,11 @@ class JupyterManager:
         del self.execute_requests[id_]
 
     def execute(self, code, f):
-        id_ = self.client.execute(code)
+        id_ = self.client.execute(code, store_history=False, allow_stdin=False)
         self.execute_requests[id_] = f
         self.clear_buffers()
         return id_
+
+    def history(self, cb):
+        id_= self.client.history(raw=True, output=True)
+        self.history_requests[id_] = cb
