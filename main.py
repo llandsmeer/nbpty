@@ -13,6 +13,7 @@ def main():
         blocks.add_stdout('Stdout/Stderr', 8)
         blocks.add_terminal('Bash', ['/usr/bin/env', 'bash'])
         blocks.add_text('Scratch')
+        blocks.add_eval('Python Cell', '# Press Tab\nprint("hello world\\n"*10)')
         blocks.add_terminal('Editor', ['/usr/bin/env', 'vim', '-i', 'NONE', '-u', 'NONE'])
         blocks.add_terminal('Python console', ['/usr/bin/env', 'python3'])
         blocks.add_text('Scratch')

@@ -18,11 +18,10 @@ class Terminal:
         attr = termios.tcgetattr(self.master)
         attr[2] &= ~(termios.ECHO | termios.ECHONL)
         termios.tcsetattr(self.master, termios.TCSAFLUSH, attr)
-        self.width = width
-        self.height = height
+        self.resize(height, width)
 
     def resize(self, rows, cols):
-        buf = struct.unpack('HHHH', rows, cols, 0, 0)
+        buf = struct.pack('HHHH', rows, cols, 0, 0)
         fcntl.ioctl(self.master, termios.TIOCSWINSZ, buf)
         self.width = cols
         self.height = rows

@@ -71,6 +71,7 @@ class VTermScreen:
         return 1
 
     def vterm_moverect(self, dst, src, _user):
+        self.vterm_damage(dst, _user)
         return 1
 
     def vterm_movecursor(self, dst, src, _user):
@@ -82,9 +83,10 @@ class VTermScreen:
         return 1
 
     def vterm_bell(self, *a):
-        print('bell')
         return 1
 
     def send(self, buf):
         buf = bytearray(buf)
-        libvterm.vterm_input_write(self.term, (ctypes.c_char*len(buf)).from_buffer(buf), len(buf))
+        libvterm.vterm_input_write(self.term,
+                (ctypes.c_char*len(buf)).from_buffer(buf),
+                len(buf))

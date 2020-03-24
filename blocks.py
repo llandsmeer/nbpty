@@ -8,6 +8,7 @@ from inputs import Inputs
 from block_text import BlockText
 from block_terminal import BlockTerminal
 from block_stdout import BlockStdout
+from block_eval import BlockEval
 
 class Blocks:
     def __init__(self, stdscr):
@@ -19,7 +20,7 @@ class Blocks:
 
     def handle_input(self):
         key = sys.stdin.read(1)
-        if not key.isalnum():
+        if not key.isprintable():
             print(repr(key))
         if key == '\n': # C-J
             if self.focus_idx < len(self.blocks) - 1:
@@ -46,6 +47,10 @@ class Blocks:
         block = BlockStdout(header, nlines)
         self.blocks.append(block)
 
+    def add_eval(self, header, code):
+        block = BlockEval(header, code.split('\n'))
+        self.blocks.append(block)
+
     def scroll(self):
         hs = []
         nskip = 0
@@ -54,7 +59,7 @@ class Blocks:
             if i == self.focus_idx:
                 top = sum(hs)
                 bot = top + h
-                while bot > curses.LINES:
+                while bot > curses.LINES and hs:
                     bot = top + h
                     nskip += 1
                     hs.pop(0)
