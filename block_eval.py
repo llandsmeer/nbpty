@@ -1,12 +1,10 @@
 import curses
 import curses.textpad
 
-import subprocess
-
 from block_base import BlockBase
 
 class BlockEval(BlockBase):
-    def __init__(self, header, lines=()):
+    def __init__(self, header, manager, lines=()):
         self.header = header
         self.output = []
         self.lines = list(lines)
@@ -14,6 +12,8 @@ class BlockEval(BlockBase):
         self.scr = curses.newpad(self.height()+1, self.width())
         self.focus = False
         self.cursor = 1 + len(self.lines[-1]), len(self.lines) + 1
+        self.manager = manager
+        self.exec_id = None
 
     def handle_input(self, key):
         if key == '\n' or key == '\r':
@@ -32,13 +32,15 @@ class BlockEval(BlockBase):
             self.lines[-1] += key
         self.cursor = 1 + len(self.lines[-1]), len(self.lines) + 1
 
+    def execute_cb(self, out):
+        self.output.extend(out.rstrip('\n').split('\n'))
+        self.scr = curses.newpad(self.height()+1, self.width())
+
     def eval(self):
-        try:
-            out = subprocess.check_output(['python3', '-c', '\n'.join(self.lines)])
-            self.output = out.decode('utf8').rstrip('\n').split('\n')
-            self.scr = curses.newpad(self.height()+1, self.width())
-        except Exception as ex:
-            print(type(ex), ex)
+        self.manager.stop_listen(self.exec_id)
+        self.output = []
+        code = '\n'.join(self.lines)
+        self.exec_id = self.manager.execute(code, self.execute_cb)
 
     def render(self):
         super().render()

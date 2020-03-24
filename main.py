@@ -1,7 +1,10 @@
+#!/usr/bin/env python3
+
 import curses
 import curses.textpad
 
 from blocks import Blocks
+from jupyter_manager import JupyterManager
 
 def main():
     try:
@@ -10,13 +13,14 @@ def main():
         curses.cbreak()
         #stdscr.keypad(True)
         blocks = Blocks(stdscr)
+        manager = JupyterManager(blocks)
         blocks.add_stdout('Stdout/Stderr', 8)
+        manager.launch()
+        manager.launch_editor(code='# Press Tab\nprint("hello world\\n"*10)\na = 10')
+        manager.launch_editor(header='Python Cell #2', code='print(a * a)')
         blocks.add_terminal('Bash', ['/usr/bin/env', 'bash'])
-        blocks.add_text('Scratch')
-        blocks.add_eval('Python Cell', '# Press Tab\nprint("hello world\\n"*10)')
         blocks.add_terminal('Editor', ['/usr/bin/env', 'vim', '-i', 'NONE', '-u', 'NONE'])
-        blocks.add_terminal('Python console', ['/usr/bin/env', 'python3'])
-        blocks.add_text('Scratch')
+        blocks.add_terminal('External python console', ['/usr/bin/env', 'python3'])
         blocks.add_text('Scratch')
         stdscr.clear()
         print('Ctrl-J: Move block down')
@@ -25,6 +29,7 @@ def main():
             try:
                 blocks.render()
                 blocks.wait()
+                manager.clear_buffers()
             except KeyboardInterrupt:
                 break
     finally:

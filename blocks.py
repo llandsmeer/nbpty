@@ -20,7 +20,7 @@ class Blocks:
 
     def handle_input(self):
         key = sys.stdin.read(1)
-        if not key.isprintable():
+        if not key.isprintable() and not key in '\n\t\x0b\x7f\x0c':
             print(repr(key))
         if key == '\n': # C-J
             if self.focus_idx < len(self.blocks) - 1:
@@ -47,8 +47,8 @@ class Blocks:
         block = BlockStdout(header, nlines)
         self.blocks.append(block)
 
-    def add_eval(self, header, code):
-        block = BlockEval(header, code.split('\n'))
+    def add_eval(self, header, manager, code=''):
+        block = BlockEval(header, manager, code.split('\n'))
         self.blocks.append(block)
 
     def scroll(self):

@@ -1,6 +1,7 @@
 import sys
 import curses
 import curses.textpad
+import textwrap
 
 from block_base import BlockBase
 
@@ -17,6 +18,12 @@ class BlockStdout(BlockBase):
         self.output = ''
         self.scroll = 0
         self.f = open('log', 'w')
+
+    def lines(self):
+        lines = []
+        for line in self.output.split('\n'):
+            lines.extend(textwrap.wrap(line, self.width()-2))
+        return lines
 
     def handle_input(self, key):
         if key == 'j':
@@ -45,7 +52,7 @@ class BlockStdout(BlockBase):
 
     def render(self):
         super().render()
-        lines = self.output.split('\n')
+        lines = self.lines()
         lines = lines[self.scroll:self.scroll+self.nlines]
         for i, line in enumerate(lines, 2):
             self.scr.addstr(i, 1, line)
