@@ -22,13 +22,21 @@ class Blocks:
             'n': self.action_block_up,
             'p': self.action_block_down,
             'O': self.action_block_create_above,
-            'o': self.action_block_create_below
+            'o': self.action_block_create_below,
+            't': self.action_create_term,
+            'e': self.action_create_python,
         }
 
     def handle_block_create_request(self, idx):
         block = BlockText('Created', ['Hi!'])
         self.blocks.insert(self.focus_idx, block)
         self.focus_idx = idx
+
+    def action_create_term(self):
+        self.add_terminal('Terminal', ['/usr/bin/env', 'bash'])
+
+    def action_create_python(self):
+        blocks.add_terminal('External python console', ['/usr/bin/env', 'python3'])
 
     def action_block_up(self):
         if self.focus_idx > 0:

@@ -38,6 +38,9 @@ class BlockNVimEval(BlockBase):
         text = '\n'.join(self.nvim.current.buffer)
         return text
 
+    def set_text(self, text):
+        self.nvim.current.buffer[:] = text.splitlines()
+
     def render(self):
         if self.height() > self.scr.getmaxyx()[0] - 1:
             self.scr = curses.newpad(self.height()+1, self.width())
