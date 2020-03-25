@@ -10,7 +10,6 @@ class BlockStdout(BlockBase):
         self.header = header
         self.nlines = nlines
         self.scr = curses.newpad(self.height()+1, self.width())
-        self.focus = False
         self.cursor = 1, 2
         self.orig = sys.stderr
         sys.stdout = self

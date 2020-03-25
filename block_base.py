@@ -4,6 +4,8 @@ import curses.textpad
 class BlockBase:
     def render(self):
         self.scr.clear()
+        self.cursor = None
+        self.focus = False
         self.scr.addstr(0, 1, f'{self.header}', curses.A_BOLD)
         curses.textpad.rectangle(self.scr,
                 1, 0,

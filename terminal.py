@@ -8,12 +8,17 @@ import termios
 from libvterm import VTermScreen
 
 class Terminal:
-    def __init__(self, width, height, argv=('/bin/sh',)):
+    def __init__(self, width, height, argv=('/bin/sh',), env=False):
         self.is_alive = True
         self.screen = VTermScreen(width, height)
         self.pid, self.master = os.forkpty()
         if self.pid == 0:
-            os.execv(argv[0], argv)
+            if env:
+                os_env = os.environ.copy()
+                os_env.update(env)
+                os.execve(argv[0], argv, os_env)
+            else:
+                os.execv(argv[0], argv)
             exit(4)
         attr = termios.tcgetattr(self.master)
         attr[2] &= ~(termios.ECHO | termios.ECHONL)

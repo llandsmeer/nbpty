@@ -10,7 +10,6 @@ class BlockEval(BlockBase):
         self.lines = list(lines)
         if not self.lines: self.lines.append('')
         self.scr = curses.newpad(self.height()+1, self.width())
-        self.focus = False
         self.cursor = 1 + len(self.lines[-1]), len(self.lines) + 1
         self.manager = manager
         self.exec_id = None

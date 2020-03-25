@@ -1,9 +1,13 @@
 import os
+import re
 import json
 import queue
+import curses
+import select
 
 import jupyter_client
-from block_eval import BlockEval
+from block_nvim_eval import BlockNVimEval
+from block_terminal import BlockTerminal
 
 class JupyterManager:
     def __init__(self, blocks):
@@ -21,25 +25,19 @@ class JupyterManager:
             pass
         self.client.load_connection_file(self.connection_file)
         self.client.start_channels()
-
         self.blocks.inputs.add(self.client.iopub_channel.socket.FD, self.edge_event)
         self.blocks.inputs.add(self.client.shell_channel.socket.FD, self.edge_event)
-
         def handle_block_create_request(idx):
             def cb(hist):
-                block = BlockEval('Python Code Block', self, hist[-1].split('\n') if hist else [''])
+                block = BlockNVimEval('Python Code Block', curses.COLS-2, 10, self, hist=hist)
+                self.blocks.inputs.add(block.terminal.master, block.terminal.handle_input, select.POLLIN | select.POLLHUP)
                 self.blocks.blocks.insert(idx, block)
                 self.blocks.focus_idx = idx
             self.history(cb)
-
         self.blocks.handle_block_create_request = handle_block_create_request
-
 
     def edge_event(self):
         self.clear_buffers()
-
-    def launch_editor(self, header='Python Cell', code=''):
-        self.blocks.add_eval(header, self, code)
 
     def clear_buffers(self):
         try:
@@ -61,12 +59,13 @@ class JupyterManager:
             f = self.execute_requests[pid]
             if msg['content']['status'] == 'error':
                 tb = '\n'.join(msg['content']['traceback'])
+                tb = re.sub(r'\x1B\[[0-9;]*[a-zA-Z]', '', tb)
                 ename = msg['content']['ename']
                 evalue = msg['content']['evalue']
                 f(f'{tb}\n\n{ename}\n{evalue}')
             else:
                 content_dump = json.dumps(msg['content'], default=str, indent=1)
-                f('# execution ok')
+                # f('# execution ok')
         elif pid in self.history_requests:
             hist_res = msg['content']['history']
             hist = []
@@ -97,6 +96,8 @@ class JupyterManager:
                 print('discarding iopub', msg['msg_type'], msg['msg_id'], ' - Jupyter Kernel?')
                 #print(msg['content']['text'])
         elif msg['msg_type'] == 'execute_input':
+            pass
+        elif msg['msg_type'] == 'error':
             pass
         else:
             print('discarding iopub', msg['msg_type'], msg['msg_id'])

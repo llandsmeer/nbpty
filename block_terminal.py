@@ -11,9 +11,7 @@ class BlockTerminal(BlockBase):
         self._height = height
         self.header = header
         self.terminal = Terminal(width, height, argv)
-        self.focus = False
         self.scr = curses.newpad(1, self.width())
-        self.cursor = None
 
     def render(self):
         if self.height() > self.scr.getmaxyx()[0] - 1:
