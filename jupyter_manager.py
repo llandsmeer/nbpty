@@ -32,16 +32,14 @@ class JupyterManager:
                 continue
             sections.append(block.get_text().strip())
         code = '\n\n\n'.join(sections)
-        try:
-            with open(filename, 'w') as f:
-                print(code, file=f)
-        except IOError as e:
-            print('IOError', e)
+        with open(filename, 'w') as f:
+            print(code, file=f)
 
     def launch(self):
-        self.blocks.add_terminal('Jupyter Kernel', [
+        self.kernel_block = self.blocks.add_terminal('Jupyter Kernel', [
             '/usr/bin/env', 'jupyter', 'console',
                 f'--ZMQTerminalIPythonApp.connection_file={self.connection_file}'])
+        self.kernel_block.request_exit = lambda: None
         while not os.path.exists(self.connection_file):
             pass
         self.client.load_connection_file(self.connection_file)

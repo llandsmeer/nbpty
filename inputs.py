@@ -15,6 +15,11 @@ class Inputs:
 
     def wait(self):
         for fd, event in self.poll.poll():
+            if event & select.POLLNVAL:
+                self.poll.unregister(fd)
+                if fd in self.map:
+                    del self.map[fd]
+                continue
             f, mask = self.map[fd]
             if mask == select.POLLIN:
                 f()

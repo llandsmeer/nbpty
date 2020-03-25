@@ -3,6 +3,7 @@ import ctypes
 import struct
 import fcntl
 import select
+import signal
 import termios
 
 from libvterm import VTermScreen
@@ -40,3 +41,8 @@ class Terminal:
 
     def send(self, buf):
         os.write(self.master, buf.encode('latin1'))
+
+    def close(self):
+        self.is_alive = False
+        os.close(self.master)
+        os.kill(self.pid, signal.SIGTERM)

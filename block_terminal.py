@@ -35,3 +35,6 @@ class BlockTerminal(BlockBase):
 
     def height(self):
         return self._height + 3
+
+    def request_exit(self):
+        self.terminal.close()

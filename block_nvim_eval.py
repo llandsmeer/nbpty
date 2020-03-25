@@ -35,10 +35,14 @@ class BlockNVimEval(BlockBase):
         self.nvim.current.buffer[:] = orig
 
     def get_text(self):
+        if not self.is_alive():
+            return ''
         text = '\n'.join(self.nvim.current.buffer)
         return text
 
     def set_text(self, text):
+        if not self.is_alive():
+            return
         self.nvim.current.buffer[:] = text.splitlines()
 
     def render(self):
@@ -80,3 +84,6 @@ class BlockNVimEval(BlockBase):
 
     def height(self):
         return self._height + 3 + 1 + len(self.output)
+
+    def request_exit(self):
+        self.terminal.close()

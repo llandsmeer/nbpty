@@ -7,8 +7,8 @@ import select
 from inputs import Inputs
 from block_text import BlockText
 from block_terminal import BlockTerminal
-from block_stdout import BlockStdout
 from block_eval import BlockEval
+from block_stdout import BlockStdout
 
 class Blocks:
     def __init__(self, stdscr):
@@ -25,6 +25,7 @@ class Blocks:
             'o': self.action_block_create_below,
             't': self.action_create_term,
             'e': self.action_create_python,
+            'd': self.action_delete
         }
 
     def handle_block_create_request(self, idx):
@@ -33,10 +34,12 @@ class Blocks:
         self.focus_idx = idx
 
     def action_create_term(self):
-        self.add_terminal('Terminal', ['/usr/bin/env', 'bash'])
+        self.add_terminal('Terminal', ['/usr/bin/env', 'bash'], here=True)
+        self.focus_idx += 1
 
     def action_create_python(self):
-        blocks.add_terminal('External python console', ['/usr/bin/env', 'python3'])
+        self.add_terminal('External python console', ['/usr/bin/env', 'python3'], here=True)
+        self.focus_idx += 1
 
     def action_block_up(self):
         if self.focus_idx > 0:
@@ -51,6 +54,10 @@ class Blocks:
 
     def action_block_create_below(self):
         self.handle_block_create_request(self.focus_idx+1)
+
+    def action_delete(self):
+        block = self.blocks[self.focus_idx]
+        block.request_exit()
 
     def handle_input(self):
         key = sys.stdin.read(1)
@@ -76,12 +83,16 @@ class Blocks:
         block = BlockText(header, lines)
         self.blocks.append(block)
 
-    def add_terminal(self, header, argv):
+    def add_terminal(self, header, argv, here=False):
         width = curses.COLS - 2
         height = 15
         block = BlockTerminal(header, argv, width, height)
         self.inputs.add(block.terminal.master, block.terminal.handle_input, select.POLLIN | select.POLLHUP)
-        self.blocks.append(block)
+        if here:
+            self.blocks.insert(self.focus_idx+1, block)
+        else:
+            self.blocks.append(block)
+        return block
 
     def add_stdout(self, header, nlines):
         block = BlockStdout(header, nlines)

@@ -23,3 +23,6 @@ class BlockBase:
 
     def height(self):
         return 3
+
+    def request_exit(self):
+        return False
